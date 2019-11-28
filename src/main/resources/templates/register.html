@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>REGISTRATION</title>
+    <div class="tmp" th:replace="fragment/structure.html :: metaDataHead"></div>
+    <div th:replace="fragment/structure.html :: globalCss"></div>
+</head>
+<body>
+
+<div th:replace="fragment/structure.html :: barraNav"></div>
+
+<div style="min-height:calc(100vh - 60px);" class=" d-flex m-auto col-sm-8 col-md-6 col-lg-4 justify-content-center flex-column align-items-center">
+
+<div class="container" id="container-register">
+    <div class="row">
+        <div class="col" id="titolo"><h1>NUOVO UTENTE</h1></div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="registration">
+                <form method="post" th:action="@{/api/register}" id="registrationForm">
+                    <p>Inserisci nome:</p>
+                    <div class="form-group">
+                        <input type="text" name="nome" placeholder="nome" class="form-control">
+                    </div>
+                    <p>Inserisci cognome:</p>
+                    <div class="form-group">
+                        <input type="text" name="cognome" placeholder="cognome"  class="form-control">
+                    </div>
+                    <p>Inserisci mail:</p>
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="email"  class="form-control">
+                    </div>
+                    <p>Inserisci password:</p>
+                    <div class="form-group">
+                        <input type="password" name="password" placeholder="password"  class="form-control">
+                    </div>
+                    <br>
+                    <div class="text-center">
+                    <button type="button" id="submitRegistrationForm" class="btn btn-primary btn-lg" ><span class="text-bold">REGISTRATI</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</div>
+
+
+
+
+
+<div th:replace="fragment/structure.html :: scriptJS"></div>
+
+
+<script>
+
+
+    function getJsonFromFormData(fd){
+        let obj = {};
+        for (let el of fd.entries()){
+            obj[el[0]]=el[1];
+        }
+        return obj;
+    }
+
+    function elaboraForm(){
+        const form = document.getElementById('registrationForm');
+        const fd = new FormData(form);
+        let data = getJsonFromFormData(fd);
+        console.log(data);
+        fetch(form.getAttribute('action'),{
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            //body: JSON.stringify(data)
+            body: JSON.stringify(Object.fromEntries(fd)) // da aprile 2019!
+        })
+            .then(risp => {
+                if (!risp.ok) throw risp;
+                return risp.json();
+            })
+            .then(r=>{
+                console.log(r);
+                alert(`congratulazioni per esserti iscritto, hai l'id: ${r.id}`)
+            })
+            .catch(err=>{
+                return err.json().then(ex=>{
+                    alert(`Errore nel gestire la richiesta\nCODE: ${ex.status}\n${ex.data} `)
+                })
+            })
+           ;
+        //console.log("dopo-chiamata-ma-in-contemporanea")
+    }
+    document.getElementById('submitRegistrationForm')
+        .addEventListener('click',elaboraForm);
+
+
+
+
+
+
+
+
+
+
+    //------------------------------------
+    //--- SPIEGA PROMISE E ASYNC AWAIT ---
+    //------------------------------------
+
+    async function  elabora1(){
+        let promise = new Promise((res,rej)=>{
+            if (Math.random()<0.8)
+                setTimeout(()=>res("ciao $"+Math.random()),1500);
+            else
+                rej("KO")
+        })
+
+        return promise;
+    }
+
+    async function attendi() {
+        let risultato1 = await elabora1()
+            .then(ris => {
+                //console.log(ris);
+                return ris
+            })
+            .catch(err => {
+                console.error(err)
+            })
+
+        let risultato2 = await elabora1()
+            .then(ris => {
+                //console.log(ris);
+                return ris
+            })
+            .catch(err => {
+                console.error(err)
+            })
+
+        console.log("risultato2: ", risultato2);
+        console.log("risultato1: ", risultato1);
+
+    }
+
+    attendi();
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
